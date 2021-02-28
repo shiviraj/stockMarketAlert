@@ -17,7 +17,7 @@ class StockApplication {
         @JvmStatic
         fun main(args: Array<String>) {
             val properties = Properties()
-            properties["spring.data.mongodb.uri"] = ""
+            properties["spring.data.mongodb.uri"] = System.getenv("MONGODB_URL")
             SpringApplicationBuilder(StockApplication::class.java).properties(properties).run(*args)
         }
     }

@@ -8,19 +8,19 @@ import com.stocksAlert.stock.service.StockService
 import com.stocksAlert.stock.service.SymbolService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 
 @Component
 class BestPriceScheduler(
-    @Autowired val stockService: StockService,
-    @Autowired val symbolService: SymbolService,
-    @Autowired val buyableStockService: BuyableStockService
+    @Autowired private val stockService: StockService,
+    @Autowired private val symbolService: SymbolService,
+    @Autowired private val buyableStockService: BuyableStockService
 ) {
 
-    //    @Scheduled(cron = "0 */2 * * * *")
-//    @Scheduled(cron = "0/15,30/45 */1 * * * *")
+    @Scheduled(cron = "0 0/15,30/45 8-16 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         symbolService.getAllSymbols().map {

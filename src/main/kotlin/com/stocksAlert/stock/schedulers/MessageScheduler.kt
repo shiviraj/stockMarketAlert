@@ -12,14 +12,11 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class MessageScheduler(
-    @Autowired
-    val buyableStockService: BuyableStockService
+    @Autowired private val buyableStockService: BuyableStockService
 ) {
-
     private val webClient = WebClient.builder().build()
 
-    //    @Scheduled(cron = "0 */2 * * * *")
-    @Scheduled(cron = "0/15,30/45 */1 * * * *")
+    @Scheduled(cron = "0 0/15,30/45 8-16 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         buyableStockService.getAll()
@@ -36,7 +33,7 @@ class MessageScheduler(
         buyableStock.isSendAlert = true
 
         webClient.post()
-            .uri("uri")
+            .uri(System.getenv("WEBHOOK_URI"))
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .bodyValue(body)
             .retrieve()
