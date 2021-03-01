@@ -21,4 +21,13 @@ class StockService(private val stockRepository: StockRepository) {
                 it.calculateAveragePrice()
             }
     }
+
+    fun getAllStocks(): Flux<Stock> {
+        return stockRepository.findAll()
+    }
+
+    fun deleteStock(stock: Stock): Mono<Void> {
+        return stockRepository.delete(stock)
+
+    }
 }

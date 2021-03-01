@@ -20,7 +20,7 @@ class BestPriceScheduler(
     @Autowired private val buyableStockService: BuyableStockService
 ) {
 
-    @Scheduled(cron = "0 0/15,30/45 8-16 * * 1-6")
+    @Scheduled(cron = "0 0/15,30/45 3-10 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         symbolService.getAllSymbols().map {
@@ -52,10 +52,7 @@ class BestPriceScheduler(
 
         buyableStockService
             .save(buyableStock)
-            .doOnError {
-                println("Duplicate data: ${buyableStock.key}")
-                Mono.just(buyableStock)
-            }.subscribe()
+            .subscribe()
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {
