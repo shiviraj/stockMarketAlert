@@ -38,11 +38,7 @@ class Stock(
     val Wk52low: BigDecimal,
     val MCapFF: BigDecimal,
     val MCapFull: BigDecimal
-) {
-    override fun toString(): String {
-        return "Stock(id=$id, key='$key', symbol='$symbol', LastTradeTime=$LastTrdTime, LongName='$LongName', UlaValue=$UlaValue, ATP=$ATP, PercentChange=$PercentChange, Price=$Price, Change=$Change, Volume=$Volume, TurnOver=$TurnOver, Open=$Open, High=$High, Low=$Low, PreCloseRate=$PreCloseRate, OI=$OI, upperCircuit=$upperCircuit, lowerCircuit=$lowerCircuit, Wk52High=$Wk52High, W2AvgQ=$W2AvgQ, Wk52low=$Wk52low, MCapFF=$MCapFF, MCapFull=$MCapFull)"
-    }
-}
+)
 
 fun List<Stock>.calculateAveragePrice(): BigDecimal {
     return this.sumOf { it.Price } / BigDecimal(this.size)

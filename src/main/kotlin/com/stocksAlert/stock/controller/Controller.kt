@@ -1,12 +1,32 @@
 package com.stocksAlert.stock.controller
 
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.RestController
+import com.stocksAlert.stock.domain.MyStock
+import com.stocksAlert.stock.service.MyStockService
+import com.stocksAlert.stock.service.StockService
+import org.springframework.stereotype.Component
+import org.springframework.web.bind.annotation.*
+import reactor.core.publisher.Mono
+import java.math.BigDecimal
 
 @RestController
-class Controller {
+@Component
+class Controller(
+    val myStockService : MyStockService,
+    val stockService : StockService
+) {
+
     @GetMapping("/")
     fun index(): String {
         return "OK"
+    }
+
+    @PostMapping("/my-stock")
+    fun addMyStock(@RequestBody myStock: MyStockRequest): Mono<MyStock> {
+        return myStockService.add(myStock)
+    }
+
+    @GetMapping("/average-price/{symbol}")
+    fun getAveragePrice(@PathVariable symbol: String): Mono<BigDecimal> {
+        return stockService.findAverage(symbol)
     }
 }
