@@ -56,7 +56,7 @@ class BestPriceScheduler(
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {
-        return averagePrice - (averagePrice * BigDecimal(1) / BigDecimal(100)) > price
+        return averagePrice - (averagePrice * BigDecimal(System.getenv("DISCOUNT_PERCENT")) / BigDecimal(100)) > price
     }
 
     private fun fetchStocksBySymbol(symbol: String): Mono<List<Stock>> {
