@@ -41,7 +41,6 @@ class MessageScheduler(
             .doOnSuccess {
                 buyableStockService.save(buyableStock).block()
             }
-            .retry(3)
             .block()
     }
 
