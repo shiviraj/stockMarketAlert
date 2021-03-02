@@ -8,12 +8,15 @@ import reactor.core.publisher.Mono
 
 @Service
 class BuyableStockService(private val buyableStockRepository: BuyableStockRepository) {
-
     fun save(buyableStock: BuyableStock): Mono<BuyableStock> {
         return buyableStockRepository.save(buyableStock)
     }
 
     fun getAll(): Flux<BuyableStock> {
         return buyableStockRepository.findAll()
+    }
+
+    fun deleteAll(): Mono<Void> {
+        return buyableStockRepository.deleteAll()
     }
 }
