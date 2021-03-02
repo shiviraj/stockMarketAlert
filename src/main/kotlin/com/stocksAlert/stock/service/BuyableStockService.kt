@@ -15,8 +15,4 @@ class BuyableStockService(private val buyableStockRepository: BuyableStockReposi
     fun getAll(): Flux<BuyableStock> {
         return buyableStockRepository.findAll()
     }
-
-    fun deleteAll(): Mono<Void> {
-        return buyableStockRepository.deleteAll()
-    }
 }

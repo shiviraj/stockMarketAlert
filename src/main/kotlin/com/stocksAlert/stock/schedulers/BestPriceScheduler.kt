@@ -20,7 +20,7 @@ class BestPriceScheduler(
     @Autowired private val buyableStockService: BuyableStockService
 ) {
 
-    @Scheduled(cron = "0 0/15,30/45 3-10 * * 1-6")
+    @Scheduled(cron = "0 0/15 3-10 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         symbolService.getAllSymbols().map {
