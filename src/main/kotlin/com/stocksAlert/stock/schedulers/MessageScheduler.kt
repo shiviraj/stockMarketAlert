@@ -41,7 +41,7 @@ class MessageScheduler(
             .doOnSuccess {
                 buyableStockService.save(buyableStock).block()
             }
-            .block()
+            .subscribe()
     }
 
     private fun createMessageBody(buyableStock: BuyableStock): Map<String, Any> {
