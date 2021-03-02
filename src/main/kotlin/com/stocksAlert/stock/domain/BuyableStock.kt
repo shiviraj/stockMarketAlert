@@ -12,7 +12,7 @@ import java.time.ZoneOffset
 const val BUYABLE_STOCK_COLLECTION = "buyableStocks"
 
 @Document(BUYABLE_STOCK_COLLECTION)
-class BuyableStock(
+data class BuyableStock(
     @Id
     var id: ObjectId? = null,
     @Indexed(unique = true)

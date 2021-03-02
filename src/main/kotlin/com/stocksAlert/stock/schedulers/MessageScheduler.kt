@@ -39,7 +39,7 @@ class MessageScheduler(
             .retrieve()
             .bodyToMono(String::class.java)
             .doOnSuccess {
-                buyableStockService.save(buyableStock)
+                buyableStockService.save(buyableStock).block()
             }
             .retry(3)
             .subscribe()
