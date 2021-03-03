@@ -10,7 +10,7 @@ import java.math.BigDecimal
 const val STOCK_COLLECTION = "stocks"
 
 @Document(STOCK_COLLECTION)
-class Stock(
+data class Stock(
     @Id
     var id: ObjectId? = null,
     @Indexed(unique = true)

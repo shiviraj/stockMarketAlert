@@ -1,6 +1,6 @@
 package com.stocksAlert.stock.service
 
-import com.stocksAlert.stock.controller.MyStockRequest
+import com.stocksAlert.stock.controller.viewModel.MyStockRequest
 import com.stocksAlert.stock.domain.MyStock
 import com.stocksAlert.stock.repository.MyStockRepository
 import org.springframework.stereotype.Service

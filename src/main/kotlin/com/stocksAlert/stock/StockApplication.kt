@@ -2,6 +2,7 @@ package com.stocksAlert.stock
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.builder.SpringApplicationBuilder
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.data.mongodb.config.EnableMongoAuditing
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.transaction.annotation.EnableTransactionManagement
@@ -11,6 +12,7 @@ import java.util.*
 @EnableMongoAuditing
 @EnableScheduling
 @EnableTransactionManagement
+@ConfigurationPropertiesScan
 class StockApplication {
 
     companion object {

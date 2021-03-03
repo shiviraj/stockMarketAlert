@@ -1,5 +1,6 @@
 package com.stocksAlert.stock.schedulers
 
+import com.stocksAlert.stock.config.EnvConfig
 import com.stocksAlert.stock.domain.BuyableStock
 import com.stocksAlert.stock.service.BuyableStockService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
@@ -12,7 +13,8 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class MessageScheduler(
-    @Autowired private val buyableStockService: BuyableStockService
+    @Autowired private val buyableStockService: BuyableStockService,
+    @Autowired private val envConfig: EnvConfig
 ) {
     private val webClient = WebClient.builder().build()
 
@@ -33,7 +35,7 @@ class MessageScheduler(
         buyableStock.isSendAlert = true
 
         webClient.post()
-            .uri(System.getenv("WEBHOOK_URI"))
+            .uri(envConfig.webhookUri)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
             .bodyValue(body)
             .retrieve()

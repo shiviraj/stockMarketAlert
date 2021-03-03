@@ -1,5 +1,6 @@
 package com.stocksAlert.stock.schedulers
 
+import com.stocksAlert.stock.config.EnvConfig
 import com.stocksAlert.stock.domain.BuyableStock
 import com.stocksAlert.stock.domain.Stock
 import com.stocksAlert.stock.domain.calculateAveragePrice
@@ -17,7 +18,8 @@ import java.math.BigDecimal
 class BestPriceScheduler(
     @Autowired private val stockService: StockService,
     @Autowired private val symbolService: SymbolService,
-    @Autowired private val buyableStockService: BuyableStockService
+    @Autowired private val buyableStockService: BuyableStockService,
+    @Autowired private val envConfig: EnvConfig
 ) {
 
     @Scheduled(cron = "0 0/15 3-10 * * 1-6")
@@ -56,7 +58,7 @@ class BestPriceScheduler(
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {
-        return averagePrice - (averagePrice * BigDecimal(System.getenv("DISCOUNT_PERCENT")) / BigDecimal(100)) > price
+        return averagePrice - (averagePrice * BigDecimal(envConfig.discountPercent) / BigDecimal(100)) > price
     }
 
     private fun fetchStocksBySymbol(symbol: String): Mono<List<Stock>> {

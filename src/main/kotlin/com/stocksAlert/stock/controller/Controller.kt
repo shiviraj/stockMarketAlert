@@ -1,5 +1,6 @@
 package com.stocksAlert.stock.controller
 
+import com.stocksAlert.stock.controller.viewModel.MyStockRequest
 import com.stocksAlert.stock.domain.MyStock
 import com.stocksAlert.stock.service.MyStockService
 import com.stocksAlert.stock.service.StockService

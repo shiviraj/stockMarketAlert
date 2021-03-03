@@ -1,4 +1,4 @@
-package com.stocksAlert.stock.controller
+package com.stocksAlert.stock.controller.viewModel
 
 import java.math.BigDecimal
 
