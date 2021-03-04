@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @SpringBootTest
 class BestPriceSchedulerTest(
@@ -39,7 +40,7 @@ class BestPriceSchedulerTest(
     @Test
     fun `should find the best price for scheduler`() {
         val stock = StockBuilder(
-            key = "abc",
+            key = "abc 2021-03-01T16:00:00:000Z",
             symbol = "AXISBANK",
             LastTrdTime = 10000000,
             LongName = "Axis Bank",
@@ -51,8 +52,8 @@ class BestPriceSchedulerTest(
             Volume = 0,
             TurnOver = 0,
             Open = BigDecimal(190),
-            High = BigDecimal(220),
-            Low = BigDecimal(180),
+            High = BigDecimal(230),
+            Low = BigDecimal(190),
             PreCloseRate = BigDecimal(200),
             OI = BigDecimal(200),
             upperCircuit = 0,
@@ -63,8 +64,9 @@ class BestPriceSchedulerTest(
             MCapFF = BigDecimal(200),
             MCapFull = BigDecimal(200)
         ).build()
-        val stock1 = stock.copy(key = "bca", Price = BigDecimal(210))
-        val stock2 = stock.copy(key = "cab", Price = BigDecimal(200))
+        val now = LocalDateTime.now().toString().split("T")[0]
+        val stock1 = stock.copy(key = "abc 2021-03-02T16:00:00:000Z", Price = BigDecimal(210))
+        val stock2 = stock.copy(key = "abc ${now}T16:00:00:000Z", Price = BigDecimal(200))
 
         val symbol = SymbolBuilder(name = "AXISBANK").build()
 

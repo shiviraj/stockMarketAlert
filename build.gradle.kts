@@ -16,7 +16,6 @@ repositories {
 }
 
 dependencies {
-
     implementation("net.javacrumbs.shedlock:shedlock-spring:4.12.0")
     implementation("net.javacrumbs.shedlock:shedlock-provider-mongo-reactivestreams:4.12.0")
     implementation("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")

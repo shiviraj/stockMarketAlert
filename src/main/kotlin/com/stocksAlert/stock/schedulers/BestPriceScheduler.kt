@@ -13,13 +13,14 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @Component
 class BestPriceScheduler(
-    @Autowired private val stockService: StockService,
-    @Autowired private val symbolService: SymbolService,
-    @Autowired private val buyableStockService: BuyableStockService,
-    @Autowired private val envConfig: EnvConfig
+        @Autowired private val stockService: StockService,
+        @Autowired private val symbolService: SymbolService,
+        @Autowired private val buyableStockService: BuyableStockService,
+        @Autowired private val envConfig: EnvConfig
 ) {
 
     @Scheduled(cron = "0 0/15 3-10 * * 1-6")
@@ -28,16 +29,21 @@ class BestPriceScheduler(
         symbolService.getAllSymbols().map {
             it.name
         }.flatMap { symbol ->
-            fetchStocksBySymbol(symbol)
+            fetchLastStocksBySymbol(symbol)
         }.map {
             calculateAverageAndUpdateDB(it)
         }.subscribe()
     }
 
     private fun calculateAverageAndUpdateDB(stocks: List<Stock>) {
-        val sortedStocks = stocks.sortedBy { it.LastTrdTime }.reversed()
-        val currentStock = sortedStocks[0]
-        val averagePrice = stocks.calculateAveragePrice()
+        val now = LocalDateTime.now().toString().split("T")[0]
+        val currentStock = stocks.last {
+            it.key.contains(Regex(".*${now}T.*"))
+        }
+        val averagePrice = stocks.filter {
+            !it.key.contains(Regex(".*${now}T.*"))
+        }.calculateAveragePrice()
+
         if (isBuyablePrice(averagePrice, currentStock.Price)) {
             updateDB(averagePrice, currentStock)
         }
@@ -45,23 +51,23 @@ class BestPriceScheduler(
 
     private fun updateDB(averagePrice: BigDecimal, currentStock: Stock) {
         val buyableStock = BuyableStock(
-            key = currentStock.key,
-            averagePrice = averagePrice,
-            symbol = currentStock.symbol,
-            LongName = currentStock.LongName,
-            Price = currentStock.Price
+                key = currentStock.key,
+                averagePrice = averagePrice,
+                symbol = currentStock.symbol,
+                LongName = currentStock.LongName,
+                Price = currentStock.Price
         )
 
         buyableStockService
-            .save(buyableStock)
-            .subscribe()
+                .save(buyableStock)
+                .subscribe()
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {
         return averagePrice - (averagePrice * BigDecimal(envConfig.discountPercent) / BigDecimal(100)) > price
     }
 
-    private fun fetchStocksBySymbol(symbol: String): Mono<List<Stock>> {
+    private fun fetchLastStocksBySymbol(symbol: String): Mono<List<Stock>> {
         return stockService.getAllBySymbol(symbol).collectList()
     }
 }
