@@ -27,10 +27,11 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.kotest:kotest-runner-junit5-jvm:4.3.2")
     testImplementation("io.kotest:kotest-assertions-core-jvm:4.3.2")
+    testImplementation("io.mockk:mockk:1.10.0")
+    testImplementation("de.flapdoodle.embed:de.flapdoodle.embed.mongo:2.2.0")
 }
 
 tasks.withType<KotlinCompile> {

@@ -3,21 +3,18 @@ package com.stocksAlert.stock.schedulers
 import com.stocksAlert.stock.config.EnvConfig
 import com.stocksAlert.stock.domain.BuyableStock
 import com.stocksAlert.stock.service.BuyableStockService
+import com.stocksAlert.stock.utils.WebClientWrapper
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
 
 @Component
 class MessageScheduler(
     @Autowired private val buyableStockService: BuyableStockService,
-    @Autowired private val envConfig: EnvConfig
+    @Autowired private val envConfig: EnvConfig,
+    private val webClient: WebClientWrapper
 ) {
-    private val webClient = WebClient.builder().build()
-
     @Scheduled(cron = "0 0/5 3-10 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
@@ -34,12 +31,12 @@ class MessageScheduler(
         val body = createMessageBody(buyableStock)
         buyableStock.isSendAlert = true
 
-        webClient.post()
-            .uri(envConfig.webhookUri)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .bodyValue(body)
-            .retrieve()
-            .bodyToMono(String::class.java)
+        webClient.post(
+            baseUrl = envConfig.webhookUri,
+            path = "",
+            body = body,
+            returnType = String::class.java
+        )
             .doOnSuccess {
                 buyableStockService.save(buyableStock).block()
             }
