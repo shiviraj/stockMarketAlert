@@ -1,4 +1,5 @@
 stock:
   env:
-    discount-percent: ${DISCOUNT_PERCENT:1}
+    discount-percent: ${DISCOUNT_PERCENT:0}
     webhook-uri: ${WEBHOOK_URI:"uri"}
+    bse-uri: ${BSE_URI:"bse-uri"}

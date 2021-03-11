@@ -17,10 +17,10 @@ import java.time.LocalDateTime
 
 @Component
 class BestPriceScheduler(
-        @Autowired private val stockService: StockService,
-        @Autowired private val symbolService: SymbolService,
-        @Autowired private val buyableStockService: BuyableStockService,
-        @Autowired private val envConfig: EnvConfig
+    @Autowired private val stockService: StockService,
+    @Autowired private val symbolService: SymbolService,
+    @Autowired private val buyableStockService: BuyableStockService,
+    @Autowired private val envConfig: EnvConfig
 ) {
 
     @Scheduled(cron = "0 0/15 3-10 * * 1-6")
@@ -51,20 +51,21 @@ class BestPriceScheduler(
 
     private fun updateDB(averagePrice: BigDecimal, currentStock: Stock) {
         val buyableStock = BuyableStock(
-                key = currentStock.key,
-                averagePrice = averagePrice,
-                symbol = currentStock.symbol,
-                LongName = currentStock.LongName,
-                Price = currentStock.Price
+            key = currentStock.key,
+            averagePrice = averagePrice,
+            symbol = currentStock.symbol,
+            LongName = currentStock.LongName,
+            Price = currentStock.Price
         )
 
         buyableStockService
-                .save(buyableStock)
-                .subscribe()
+            .save(buyableStock)
+            .subscribe()
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {
-        return averagePrice - (averagePrice * BigDecimal(envConfig.discountPercent) / BigDecimal(100)) > price
+        val discount = averagePrice * BigDecimal(envConfig.discountPercent) / BigDecimal(100)
+        return averagePrice - discount > price
     }
 
     private fun fetchLastStocksBySymbol(symbol: String): Mono<List<Stock>> {

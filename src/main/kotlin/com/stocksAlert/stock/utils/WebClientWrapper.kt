@@ -22,11 +22,11 @@ class WebClientWrapper {
         uriVariables: Map<String, Any> = emptyMap(),
         headers: Map<String, String> = emptyMap(),
         requestTimeout: Duration? = null,
-        skipLoggingRequestBody: Boolean = false,
-        skipLoggingResponseBody: Boolean = false
     ): Mono<T> {
 
-        val url = baseUrl + UriComponentsBuilder.fromPath(path).uriVariables(uriVariables).queryParams(queryParams).build().toUriString()
+        val url =
+            baseUrl + UriComponentsBuilder.fromPath(path).uriVariables(uriVariables).queryParams(queryParams).build()
+                .toUriString()
 
         return webClient
             .post().uri(url)
@@ -40,5 +40,32 @@ class WebClientWrapper {
             .timeout(requestTimeout ?: defaultRequestTimeout)
     }
 
+    fun <T> get(
+        baseUrl: String,
+        path: String,
+        returnType: Class<T>,
+        queryParams: MultiValueMap<String, String> = LinkedMultiValueMap(),
+        uriVariables: Map<String, Any> = emptyMap(),
+        headers: Map<String, String> = emptyMap(),
+        requestTimeout: Duration? = null,
+    ): Mono<T> {
+        val url = baseUrl + UriComponentsBuilder
+            .fromPath(path)
+            .uriVariables(uriVariables)
+            .queryParams(queryParams)
+            .build()
+            .toUriString()
 
+        return webClient.get()
+            .uri(url)
+            .headers { h ->
+                headers.map {
+                    h.set(it.key, it.value)
+                }
+            }
+            .retrieve()
+            .bodyToMono(returnType)
+            .timeout(requestTimeout ?: defaultRequestTimeout)
+
+    }
 }

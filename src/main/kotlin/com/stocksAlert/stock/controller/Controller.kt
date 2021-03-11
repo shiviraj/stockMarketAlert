@@ -4,6 +4,7 @@ import com.stocksAlert.stock.controller.viewModel.MyStockRequest
 import com.stocksAlert.stock.domain.MyStock
 import com.stocksAlert.stock.service.MyStockService
 import com.stocksAlert.stock.service.StockService
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
@@ -12,8 +13,8 @@ import java.math.BigDecimal
 @RestController
 @Component
 class Controller(
-    val myStockService : MyStockService,
-    val stockService : StockService
+    @Autowired val myStockService: MyStockService,
+    @Autowired val stockService: StockService
 ) {
 
     @GetMapping("/")

@@ -49,15 +49,15 @@ class BestPriceSchedulerTest(
             PercentChange = 0.0,
             Price = BigDecimal(220),
             Change = BigDecimal(2),
-            Volume = 0,
-            TurnOver = 0,
+            Volume = 0.0,
+            TurnOver = 0.0,
             Open = BigDecimal(190),
             High = BigDecimal(230),
-            Low = BigDecimal(190),
+            Low = BigDecimal(200),
             PreCloseRate = BigDecimal(200),
             OI = BigDecimal(200),
-            upperCircuit = 0,
-            lowerCircuit = 0,
+            upperCircuit = 0.0,
+            lowerCircuit = 0.0,
             Wk52High = BigDecimal(200),
             W2AvgQ = BigDecimal(200),
             Wk52low = BigDecimal(200),
@@ -79,7 +79,8 @@ class BestPriceSchedulerTest(
             val buyableStocks = buyableStockRepository.findAll().toIterable().toList()
             buyableStocks shouldHaveSize 1
             buyableStocks[0].Price shouldBe BigDecimal(200)
+            buyableStocks[0].averagePrice shouldBe BigDecimal(215)
+            buyableStocks[0].key shouldBe "abc ${now}T16:00:00:000Z"
         }
-
     }
 }

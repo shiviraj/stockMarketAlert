@@ -28,7 +28,7 @@ class MessageSchedulerTest(
     private val webClientWrapper = mockk<WebClientWrapper>()
     private val messageScheduler = MessageScheduler(
         buyableStockService = BuyableStockService(buyableStockRepository),
-        envConfig = EnvConfig(0, "uri"),
+        envConfig = EnvConfig(0, "uri", "uri"),
         webClient = webClientWrapper
     )
 

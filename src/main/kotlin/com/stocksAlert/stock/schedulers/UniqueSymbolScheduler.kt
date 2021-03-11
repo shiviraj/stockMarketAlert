@@ -1,5 +1,6 @@
 package com.stocksAlert.stock.schedulers
 
+import com.stocksAlert.stock.domain.Stock
 import com.stocksAlert.stock.domain.Symbol
 import com.stocksAlert.stock.service.BuyableStockService
 import com.stocksAlert.stock.service.StockService
@@ -19,21 +20,23 @@ class UniqueSymbolScheduler(
     @Scheduled(cron = "0 0 8 * * 0")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        val hashSet = HashSet<String>()
         stockService.getAll()
+            .collectList()
             .map {
-                hashSet.add(it.symbol)
-                hashSet
-            }.map {
+                it.distinctBy { stock ->
+                    stock.symbol
+                }
+            }
+            .map {
                 updateSymbol(it)
             }
+
             .subscribe()
     }
 
-    private fun updateSymbol(it: HashSet<String>) {
-        it.forEach { name ->
-            symbolService.save(Symbol(name = name)).subscribe()
+    private fun updateSymbol(it: List<Stock>) {
+        it.forEach { stock ->
+            symbolService.save(Symbol(name = stock.symbol)).subscribe()
         }
     }
-
 }
