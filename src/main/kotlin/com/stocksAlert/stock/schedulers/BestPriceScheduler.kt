@@ -26,13 +26,12 @@ class BestPriceScheduler(
     @Scheduled(cron = "0 0/15 3-10 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        symbolService.getAllSymbols().map {
-            it.name
-        }.flatMap { symbol ->
-            fetchLastStocksBySymbol(symbol)
-        }.map {
-            calculateAverageAndUpdateDB(it)
-        }.subscribe()
+        symbolService.getAllSymbols()
+            .flatMap { symbol ->
+                fetchLastStocksBySymbol(symbol.name)
+            }.map {
+                calculateAverageAndUpdateDB(it)
+            }.subscribe()
     }
 
     private fun calculateAverageAndUpdateDB(stocks: List<Stock>) {
@@ -59,8 +58,7 @@ class BestPriceScheduler(
         )
 
         buyableStockService
-            .save(buyableStock)
-            .subscribe()
+            .save(buyableStock).subscribe()
     }
 
     private fun isBuyablePrice(averagePrice: BigDecimal, price: BigDecimal): Boolean {

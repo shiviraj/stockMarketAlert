@@ -30,7 +30,6 @@ class UniqueSymbolScheduler(
             .map {
                 updateSymbol(it)
             }
-
             .subscribe()
     }
 

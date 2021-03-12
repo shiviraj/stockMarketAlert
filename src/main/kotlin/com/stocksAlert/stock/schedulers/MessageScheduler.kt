@@ -18,7 +18,7 @@ class MessageScheduler(
     @Scheduled(cron = "0 0/5 3-10 * * 1-6")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        buyableStockService.getAll()
+        buyableStockService.getStocksUnsentAlert()
             .map {
                 if (!it.isSendAlert) {
                     sendAlert(it)

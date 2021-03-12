@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.toMono
 import java.math.BigDecimal
 
 @SpringBootTest
@@ -55,21 +56,25 @@ class MessageSchedulerTest(
 
         val expected = mapOf(
             "blocks" to listOf(
-                mapOf("type" to "header",
-                    "text" to mapOf("type" to "plain_text",
+                mapOf(
+                    "type" to "header",
+                    "text" to mapOf(
+                        "type" to "plain_text",
                         "text" to "${stock.symbol} - ${stock.LongName}",
                         "emoji" to true
                     )
                 ),
-                mapOf("type" to "section",
-                    "fields" to listOf(mapOf("type" to "mrkdwn", "text" to "*Average Price*\nRs. ${stock.averagePrice}"),
+                mapOf(
+                    "type" to "section",
+                    "fields" to listOf(
+                        mapOf("type" to "mrkdwn", "text" to "*Average Price*\nRs. ${stock.averagePrice}"),
                         mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${stock.Price}")
                     )
                 )
             )
         )
 
-        buyableStockRepository.saveAll(listOf(stock)).blockLast()
+        buyableStockRepository.saveAll(listOf(stock)).toMono().block()
 
         every {
             webClientWrapper.post(
@@ -93,7 +98,6 @@ class MessageSchedulerTest(
                     returnType = String::class.java
                 )
             }
-
 
             val buyableStocks = buyableStockRepository.findAll().toIterable().toList()
             buyableStocks shouldHaveSize 1

@@ -12,7 +12,7 @@ class BuyableStockService(private val buyableStockRepository: BuyableStockReposi
         return buyableStockRepository.save(buyableStock)
     }
 
-    fun getAll(): Flux<BuyableStock> {
-        return buyableStockRepository.findAll()
+    fun getStocksUnsentAlert(): Flux<BuyableStock> {
+        return buyableStockRepository.findAllByIsSendAlert(false)
     }
 }
