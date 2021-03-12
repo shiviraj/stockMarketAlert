@@ -8,6 +8,9 @@ import reactor.core.publisher.Flux
 
 @Service
 interface StockRepository : ReactiveCrudRepository<Stock, String> {
-   @Query(value = "{'\$and': [{Symbol: ?0}, {'\$or': [{key:{ '\$regex' : ?1 }}, {key:{ '\$regex' : ?2 }}]}]}")
+    @Query(value = "{'\$and': [{Symbol: ?0}, {'\$or': [{key:{ '\$regex' : ?1 }}, {key:{ '\$regex' : ?2 }}]}]}")
     fun findLastBySymbol(symbol: String, regex: String, today: String): Flux<Stock>
+
+    @Query(value = "{key: {\$regex: ?0}}")
+    fun findByRegexKey(query: String): Flux<Stock>
 }

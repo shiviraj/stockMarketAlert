@@ -15,12 +15,10 @@ class RemoveUnnecessaryStocksScheduler(
     @Scheduled(cron = "0 0 3 * * *")
     @SchedulerLock(name = "RemoveUnnecessaryStocksScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        stockService.getAll()
-            .filter {
-                !Regex(".*T16:00:00.*").containsMatchIn(it.key)
-            }
-            .map {
-                stockService.delete(it).subscribe()
+        stockService.regexQueryInKey("((?!.*T16:00:00).*)")
+            .collectList()
+            .flatMap {
+                stockService.deleteAll(it)
             }
             .subscribe()
     }

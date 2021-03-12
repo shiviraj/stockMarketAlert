@@ -28,11 +28,15 @@ class StockService(private val stockRepository: StockRepository) {
         return stockRepository.findAll()
     }
 
-    fun delete(stocks: Stock): Mono<Void> {
-        return stockRepository.delete(stocks)
-    }
-
     fun saveAll(stocks: List<Stock>): Flux<Stock> {
         return stockRepository.saveAll(stocks)
+    }
+
+    fun regexQueryInKey(query: String): Flux<Stock> {
+        return stockRepository.findByRegexKey(query)
+    }
+
+    fun deleteAll(stocks: List<Stock>): Mono<Void> {
+        return stockRepository.deleteAll(stocks)
     }
 }
