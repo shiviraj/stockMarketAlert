@@ -11,6 +11,7 @@ import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import reactor.core.publisher.Mono
+import java.time.LocalDateTime
 
 @Component
 class StockFetcherScheduler(
@@ -23,7 +24,7 @@ class StockFetcherScheduler(
 ) {
     private var pageNo: Int = 1
 
-    @Scheduled(cron = "0 0/10 3-10 * * 1-6")
+    @Scheduled(cron = "* * 3-10 * * 1-6")
     @SchedulerLock(name = "UpdateOldRecordsScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         fetchStock()
@@ -33,6 +34,7 @@ class StockFetcherScheduler(
                 }
             }
             .map {
+                println("saved stock ${LocalDateTime.now()}")
                 stockService.saveAll(it)
             }
             .subscribe()
