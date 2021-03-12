@@ -30,7 +30,7 @@ data class ResponseView(
     val MCapFull: BigDecimal,
 ) {
     fun toStock(): Stock {
-        val time = LocalDateTime.ofEpochSecond(LastTrdTime, 0, ZoneOffset.of("+05:30"))
+        val time = LocalDateTime.ofEpochSecond(LastTrdTime / 1000, 0, ZoneOffset.of("+05:30"))
         val key = "$ScripName $time:00:000Z"
         return Stock(
             key = key,

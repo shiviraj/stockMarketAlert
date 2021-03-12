@@ -24,7 +24,7 @@ class StockFetcherScheduler(
 ) {
     private var pageNo: Int = 1
 
-    @Scheduled(cron = "* * 3-10 * * 1-6")
+    @Scheduled(cron = "0 * 3-10 * * 1-6")
     @SchedulerLock(name = "UpdateOldRecordsScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         fetchStock()
@@ -34,8 +34,8 @@ class StockFetcherScheduler(
                 }
             }
             .map {
-                println("saved stock ${LocalDateTime.now()}")
-                stockService.saveAll(it)
+                println("saved stock ${LocalDateTime.now()}, $pageNo")
+                stockService.saveAll(it).subscribe()
             }
             .subscribe()
     }
@@ -61,7 +61,7 @@ class StockFetcherScheduler(
                 pageNo = 1
 
             it.map { str ->
-                StringParser.parse(str as String)
+                StringParser.parse(str.toString())
             }
         }
     }
