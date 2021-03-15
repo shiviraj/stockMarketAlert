@@ -15,7 +15,7 @@ class MessageScheduler(
     @Autowired private val envConfig: EnvConfig,
     private val webClient: WebClientWrapper
 ) {
-    @Scheduled(cron = "0 0/5 3-10 * * 1-6")
+    @Scheduled(cron = "0 0/5 3-10 * * 1-5")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         buyableStockService.getStocksUnsentAlert()

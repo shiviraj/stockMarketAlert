@@ -24,7 +24,7 @@ class StockFetcherScheduler(
 ) {
     private var pageNo: Int = 1
 
-    @Scheduled(cron = "0 * 3-10 * * 1-6")
+    @Scheduled(cron = "0 * 3-10 * * 1-5")
     @SchedulerLock(name = "UpdateOldRecordsScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         fetchStock()
