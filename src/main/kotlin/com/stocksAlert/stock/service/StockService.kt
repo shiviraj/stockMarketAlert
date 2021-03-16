@@ -12,7 +12,7 @@ class StockService(private val stockRepository: StockRepository) {
 
     fun getAllBySymbol(symbol: String): Flux<Stock> {
         val now = LocalDateTime.now().toString().split("T")[0]
-        return stockRepository.findLastBySymbol(symbol, ".*T16:00:00.*", ".*${now}T.*")
+        return stockRepository.findLastBySymbol(symbol, ".*T(16:00:00|21:30:00).*", ".*${now}T.*")
     }
 
     fun getAll(): Flux<Stock> {

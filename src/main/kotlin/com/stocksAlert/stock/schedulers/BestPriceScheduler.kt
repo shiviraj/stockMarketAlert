@@ -40,11 +40,14 @@ class BestPriceScheduler(
             !it.key.contains(Regex(".*${now}T.*"))
         }
         val stocksEvaluations = evaluateGraph(allStocks)
-
-        val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
-        val firstTwoStockEvaluation = stocksEvaluations.subList(0, 1)
-        if (isContainSameGrow(last2to12StocksEvaluation)) {
-            updateIfTradeable(firstTwoStockEvaluation.first(), last2to12StocksEvaluation.first(), stocks.first())
+        try {
+            val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
+            val firstTwoStockEvaluation = stocksEvaluations.subList(0, 1)
+            if (isContainSameGrow(last2to12StocksEvaluation)) {
+                updateIfTradeable(firstTwoStockEvaluation.first(), last2to12StocksEvaluation.first(), stocks.first())
+            }
+        } catch (e: IndexOutOfBoundsException) {
+            println("Insufficient stocks")
         }
     }
 
