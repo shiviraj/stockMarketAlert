@@ -12,7 +12,7 @@ import java.time.ZoneOffset
 const val BUYABLE_STOCK_COLLECTION = "buyableStocks"
 
 @Document(BUYABLE_STOCK_COLLECTION)
-data class BuyableStock(
+data class TradeableStock(
     @Id
     var id: ObjectId? = null,
     @Indexed(unique = true)
@@ -23,6 +23,7 @@ data class BuyableStock(
     val calculatedOn: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+05:30")) * 1000,
     var isSendAlert: Boolean = false,
     val LongName: String,
-    val Price: BigDecimal
+    val Price: BigDecimal,
+    val Type: String = "BUY"
 ) {
 }

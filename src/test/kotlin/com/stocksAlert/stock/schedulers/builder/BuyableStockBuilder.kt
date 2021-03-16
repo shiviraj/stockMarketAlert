@@ -1,6 +1,6 @@
 package com.stocksAlert.stock.schedulers.builder
 
-import com.stocksAlert.stock.domain.BuyableStock
+import com.stocksAlert.stock.domain.TradeableStock
 import org.bson.types.ObjectId
 import java.math.BigDecimal
 
@@ -14,8 +14,8 @@ data class BuyableStockBuilder(
     val LongName: String = "",
     val Price: BigDecimal = BigDecimal.ZERO
 ) {
-    fun build(): BuyableStock {
-        return BuyableStock(
+    fun build(): TradeableStock {
+        return TradeableStock(
             id = id,
             key = key,
             symbol = symbol,

@@ -1,7 +1,7 @@
 package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.config.EnvConfig
-import com.stocksAlert.stock.domain.BuyableStock
+import com.stocksAlert.stock.domain.TradeableStock
 import com.stocksAlert.stock.service.BuyableStockService
 import com.stocksAlert.stock.utils.WebClientWrapper
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
@@ -27,9 +27,9 @@ class MessageScheduler(
             .subscribe()
     }
 
-    private fun sendAlert(buyableStock: BuyableStock) {
-        val body = createMessageBody(buyableStock)
-        buyableStock.isSendAlert = true
+    private fun sendAlert(tradeableStock: TradeableStock) {
+        val body = createMessageBody(tradeableStock)
+        tradeableStock.isSendAlert = true
 
         webClient.post(
             baseUrl = envConfig.webhookUri,
@@ -38,19 +38,19 @@ class MessageScheduler(
             returnType = String::class.java
         )
             .doOnSuccess {
-                buyableStockService.save(buyableStock).block()
+                buyableStockService.save(tradeableStock).block()
             }
             .subscribe()
     }
 
-    private fun createMessageBody(buyableStock: BuyableStock): Map<String, Any> {
+    private fun createMessageBody(tradeableStock: TradeableStock): Map<String, Any> {
         return mapOf(
             "blocks" to listOf(
                 mapOf(
                     "type" to "header",
                     "text" to mapOf(
                         "type" to "plain_text",
-                        "text" to "${buyableStock.symbol} - ${buyableStock.LongName}",
+                        "text" to "${tradeableStock.symbol} - ${tradeableStock.LongName}",
                         "emoji" to true
                     )
                 ),
@@ -59,8 +59,8 @@ class MessageScheduler(
                     "fields" to listOf(
                         mapOf(
                             "type" to "mrkdwn",
-                            "text" to "*Average Price*\nRs. ${buyableStock.averagePrice}"
-                        ), mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${buyableStock.Price}")
+                            "text" to "*Average Price*\nRs. ${tradeableStock.averagePrice}"
+                        ), mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${tradeableStock.Price}")
                     )
                 )
             )

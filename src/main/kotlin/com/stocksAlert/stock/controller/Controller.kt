@@ -2,19 +2,21 @@ package com.stocksAlert.stock.controller
 
 import com.stocksAlert.stock.controller.viewModel.MyStockRequest
 import com.stocksAlert.stock.domain.MyStock
+import com.stocksAlert.stock.schedulers.RemoveUnnecessaryStocksScheduler
 import com.stocksAlert.stock.service.MyStockService
-import com.stocksAlert.stock.service.StockService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
-import java.math.BigDecimal
 
 @RestController
 @Component
 class Controller(
     @Autowired val myStockService: MyStockService,
-    @Autowired val stockService: StockService
+    @Autowired val removeUnnecessaryStocksScheduler: RemoveUnnecessaryStocksScheduler
 ) {
 
     @GetMapping("/")
@@ -27,8 +29,9 @@ class Controller(
         return myStockService.add(myStock)
     }
 
-    @GetMapping("/average-price/{symbol}")
-    fun getAveragePrice(@PathVariable symbol: String): Mono<BigDecimal> {
-        return stockService.findAverage(symbol)
+    @GetMapping("/remove")
+    fun remove(): Mono<String> {
+        removeUnnecessaryStocksScheduler.start()
+        return Mono.just("removing")
     }
 }

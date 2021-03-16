@@ -87,9 +87,4 @@ class BestPriceSchedulerTest(
             buyableStocks[0].key shouldBe "AXISBANK ${now}T15:00:00:000Z"
         }
     }
-
-    @Test
-    fun name() {
-        3 shouldBe 3
-    }
 }
