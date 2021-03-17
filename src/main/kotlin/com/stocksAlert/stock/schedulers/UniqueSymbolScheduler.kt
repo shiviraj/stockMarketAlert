@@ -2,9 +2,9 @@ package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.domain.Stock
 import com.stocksAlert.stock.domain.Symbol
-import com.stocksAlert.stock.service.BuyableStockService
 import com.stocksAlert.stock.service.StockService
 import com.stocksAlert.stock.service.SymbolService
+import com.stocksAlert.stock.service.TradeableStockService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 class UniqueSymbolScheduler(
     @Autowired private val stockService: StockService,
     @Autowired private val symbolService: SymbolService,
-    @Autowired private val buyableStockService: BuyableStockService
+    @Autowired private val tradeableStockService: TradeableStockService
 ) {
 
     @Scheduled(cron = "0 0 8 * * 0")

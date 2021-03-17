@@ -1,9 +1,9 @@
 package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.config.EnvConfig
-import com.stocksAlert.stock.repository.BuyableStockRepository
+import com.stocksAlert.stock.repository.TradeableStockRepository
 import com.stocksAlert.stock.schedulers.builder.BuyableStockBuilder
-import com.stocksAlert.stock.service.BuyableStockService
+import com.stocksAlert.stock.service.TradeableStockService
 import com.stocksAlert.stock.utils.WebClientWrapper
 import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldHaveSize
@@ -24,23 +24,23 @@ import java.math.BigDecimal
 
 @SpringBootTest
 class MessageSchedulerTest(
-    @Autowired private val buyableStockRepository: BuyableStockRepository
+    @Autowired private val tradeableStockRepository: TradeableStockRepository
 ) {
     private val webClientWrapper = mockk<WebClientWrapper>()
     private val messageScheduler = MessageScheduler(
-        buyableStockService = BuyableStockService(buyableStockRepository),
+        tradeableStockService = TradeableStockService(tradeableStockRepository),
         envConfig = EnvConfig(0, "uri", "uri"),
         webClient = webClientWrapper
     )
 
     @BeforeEach
     fun setUp() {
-        buyableStockRepository.deleteAll().block()
+        tradeableStockRepository.deleteAll().block()
     }
 
     @AfterEach
     fun tearDown() {
-        buyableStockRepository.deleteAll().block()
+        tradeableStockRepository.deleteAll().block()
     }
 
     @Test
@@ -74,7 +74,7 @@ class MessageSchedulerTest(
             )
         )
 
-        buyableStockRepository.saveAll(listOf(stock)).toMono().block()
+        tradeableStockRepository.saveAll(listOf(stock)).toMono().block()
 
         every {
             webClientWrapper.post(
@@ -99,7 +99,7 @@ class MessageSchedulerTest(
                 )
             }
 
-            val buyableStocks = buyableStockRepository.findAll().toIterable().toList()
+            val buyableStocks = tradeableStockRepository.findAll().toIterable().toList()
             buyableStocks shouldHaveSize 1
             buyableStocks shouldContainAll listOf(
                 stock.copy(isSendAlert = true)

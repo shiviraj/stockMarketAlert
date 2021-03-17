@@ -4,9 +4,9 @@ import com.stocksAlert.stock.domain.Stock
 import com.stocksAlert.stock.domain.TradeableStock
 import com.stocksAlert.stock.schedulers.view.Grow
 import com.stocksAlert.stock.schedulers.view.StockEvaluation
-import com.stocksAlert.stock.service.BuyableStockService
 import com.stocksAlert.stock.service.StockService
 import com.stocksAlert.stock.service.SymbolService
+import com.stocksAlert.stock.service.TradeableStockService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
@@ -20,7 +20,7 @@ import java.time.ZoneOffset
 class BestPriceScheduler(
     @Autowired private val stockService: StockService,
     @Autowired private val symbolService: SymbolService,
-    @Autowired private val buyableStockService: BuyableStockService
+    @Autowired private val tradeableStockService: TradeableStockService
 ) {
 
     @Scheduled(cron = "0 0/15 3-10 * * 1-5")
@@ -42,7 +42,7 @@ class BestPriceScheduler(
         val stocksEvaluations = evaluateGraph(allStocks)
         try {
             val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
-            val firstTwoStockEvaluation = stocksEvaluations.subList(0, 1)
+            val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
             if (isContainSameGrow(last2to12StocksEvaluation)) {
                 updateIfTradeable(firstTwoStockEvaluation.first(), last2to12StocksEvaluation.first(), stocks.first())
             }
@@ -52,9 +52,9 @@ class BestPriceScheduler(
     }
 
     private fun updateIfTradeable(first: StockEvaluation, stockEvaluation: StockEvaluation, stock: Stock) {
-        if (first.stockGrow == stockEvaluation.stockGrow) {
-            val buyableStock = TradeableStock(
-                key = stock.key,
+        if (first.stockGrow != stockEvaluation.stockGrow) {
+            val tradeableStock = TradeableStock(
+                key = stock.key.split("T")[0],
                 symbol = stock.symbol,
                 averagePrice = stock.averagePrice(),
                 calculatedOn = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
@@ -62,15 +62,15 @@ class BestPriceScheduler(
                 Price = stock.Price,
                 Type = if (first.stockGrow == Grow.UP) "BUY" else "DOWN"
             )
-            buyableStockService.save(buyableStock).subscribe()
+            tradeableStockService.save(tradeableStock).subscribe()
         }
     }
 
-    private fun isContainSameGrow(stocksEvaluation: List<StockEvaluation>): Boolean {
-        return stocksEvaluation.distinctBy {
-            it.stockGrow
-        }.size == 1
-
+    private fun isContainSameGrow(stocksEvaluations: List<StockEvaluation>): Boolean {
+        val noOfUpGoing = stocksEvaluations.count {
+            it.stockGrow == Grow.UP
+        }
+        return noOfUpGoing.isNotInBetween(2, 8)
     }
 
     private fun evaluateGraph(allStocks: List<Stock>): List<StockEvaluation> {
@@ -85,6 +85,15 @@ class BestPriceScheduler(
     }
 
     private fun fetchLastStocksBySymbol(symbol: String): Mono<List<Stock>> {
-        return stockService.getAllBySymbol(symbol).collectList()
+        return stockService.getAllBySymbol(symbol)
+            .collectList()
+            .map {
+                it.sortBy { stock -> stock.LastTrdTime }
+                it.reversed()
+            }
     }
+}
+
+private fun Int.isNotInBetween(start: Int, end: Int): Boolean {
+    return this < start || this > end
 }

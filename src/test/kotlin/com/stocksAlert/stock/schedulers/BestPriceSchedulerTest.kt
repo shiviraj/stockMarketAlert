@@ -1,8 +1,8 @@
 package com.stocksAlert.stock.schedulers
 
-import com.stocksAlert.stock.repository.BuyableStockRepository
 import com.stocksAlert.stock.repository.StockRepository
 import com.stocksAlert.stock.repository.SymbolRepository
+import com.stocksAlert.stock.repository.TradeableStockRepository
 import com.stocksAlert.stock.schedulers.builder.StockBuilder
 import com.stocksAlert.stock.schedulers.builder.SymbolBuilder
 import io.kotest.matchers.collections.shouldHaveSize
@@ -23,20 +23,20 @@ class BestPriceSchedulerTest(
     @Autowired private val stockRepository: StockRepository,
     @Autowired private val symbolRepository: SymbolRepository,
     @Autowired private val bestPriceScheduler: BestPriceScheduler,
-    @Autowired private val buyableStockRepository: BuyableStockRepository
+    @Autowired private val tradeableStockRepository: TradeableStockRepository
 ) {
     @BeforeEach
     fun setUp() {
         stockRepository.deleteAll().block()
         symbolRepository.deleteAll().block()
-        buyableStockRepository.deleteAll().block()
+        tradeableStockRepository.deleteAll().block()
     }
 
     @AfterEach
     fun tearDown() {
         stockRepository.deleteAll().block()
         symbolRepository.deleteAll().block()
-        buyableStockRepository.deleteAll().block()
+        tradeableStockRepository.deleteAll().block()
     }
 
     @Disabled
@@ -80,7 +80,7 @@ class BestPriceSchedulerTest(
         bestPriceScheduler.start()
 
         assertSoftly {
-            val buyableStocks = buyableStockRepository.findAll().toIterable().toList()
+            val buyableStocks = tradeableStockRepository.findAll().toIterable().toList()
             buyableStocks shouldHaveSize 1
             buyableStocks[0].Price shouldBe BigDecimal(200)
             buyableStocks[0].averagePrice shouldBe BigDecimal(215)

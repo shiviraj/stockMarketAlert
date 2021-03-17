@@ -6,6 +6,6 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 
 @Service
-interface BuyableStockRepository : ReactiveCrudRepository<TradeableStock, String> {
+interface TradeableStockRepository : ReactiveCrudRepository<TradeableStock, String> {
     fun findAllByIsSendAlert(isSendAlert: Boolean): Flux<TradeableStock>
 }

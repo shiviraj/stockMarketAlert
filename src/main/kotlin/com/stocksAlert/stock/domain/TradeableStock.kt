@@ -9,9 +9,9 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 
-const val BUYABLE_STOCK_COLLECTION = "buyableStocks"
+const val TRADEABLE_STOCK_COLLECTION = "tradeableStocks"
 
-@Document(BUYABLE_STOCK_COLLECTION)
+@Document(TRADEABLE_STOCK_COLLECTION)
 data class TradeableStock(
     @Id
     var id: ObjectId? = null,

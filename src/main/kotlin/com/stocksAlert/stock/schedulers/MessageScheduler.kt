@@ -2,7 +2,7 @@ package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.config.EnvConfig
 import com.stocksAlert.stock.domain.TradeableStock
-import com.stocksAlert.stock.service.BuyableStockService
+import com.stocksAlert.stock.service.TradeableStockService
 import com.stocksAlert.stock.utils.WebClientWrapper
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component
 
 @Component
 class MessageScheduler(
-    @Autowired private val buyableStockService: BuyableStockService,
+    @Autowired private val tradeableStockService: TradeableStockService,
     @Autowired private val envConfig: EnvConfig,
     private val webClient: WebClientWrapper
 ) {
     @Scheduled(cron = "0 0/5 3-10 * * 1-5")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        buyableStockService.getStocksUnsentAlert()
+        tradeableStockService.getStocksUnsentAlert()
             .map {
                 if (!it.isSendAlert) {
                     sendAlert(it)
@@ -38,7 +38,7 @@ class MessageScheduler(
             returnType = String::class.java
         )
             .doOnSuccess {
-                buyableStockService.save(tradeableStock).block()
+                tradeableStockService.save(tradeableStock).block()
             }
             .subscribe()
     }
@@ -60,7 +60,9 @@ class MessageScheduler(
                         mapOf(
                             "type" to "mrkdwn",
                             "text" to "*Average Price*\nRs. ${tradeableStock.averagePrice}"
-                        ), mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${tradeableStock.Price}")
+                        ),
+                        mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${tradeableStock.Price}"),
+                        mapOf("type" to "mrkdwn", "text" to "*Trade Type*\nRs. ${tradeableStock.Type}")
                     )
                 )
             )
