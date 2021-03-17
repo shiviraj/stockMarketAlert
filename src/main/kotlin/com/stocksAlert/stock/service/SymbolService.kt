@@ -17,10 +17,6 @@ class SymbolService(@Autowired val symbolRepository: SymbolRepository) {
         return symbolRepository.save(symbol)
     }
 
-    fun deleteAll(list: List<Symbol>): Mono<Void> {
-        return symbolRepository.deleteAll(list)
-    }
-
     fun saveAll(symbols: List<Symbol>): Flux<Symbol> {
         return symbolRepository.saveAll(symbols)
     }

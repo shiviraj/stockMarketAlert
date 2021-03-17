@@ -20,7 +20,7 @@ data class TradeableStock(
     @Field("Symbol")
     val symbol: String,
     val averagePrice: BigDecimal,
-    val calculatedOn: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.of("+05:30")) * 1000,
+    val calculatedOn: Long = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
     var isSendAlert: Boolean = false,
     val LongName: String,
     val Price: BigDecimal,

@@ -1,8 +1,10 @@
 package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.config.EnvConfig
+import com.stocksAlert.stock.domain.Stock
 import com.stocksAlert.stock.schedulers.view.ResponseView
 import com.stocksAlert.stock.service.StockService
+import com.stocksAlert.stock.service.SymbolService
 import com.stocksAlert.stock.utils.StringParser
 import com.stocksAlert.stock.utils.WebClientWrapper
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
@@ -20,24 +22,39 @@ class StockFetcherScheduler(
     @Autowired
     private val envConfig: EnvConfig,
     @Autowired
+    private val symbolService: SymbolService,
+    @Autowired
     private val stockService: StockService,
 ) {
     private var pageNo: Int = 1
 
-    @Scheduled(cron = "0 * 3-10 * * 1-5")
+    @Scheduled(cron = "0 0 3-10 * * 1-5")
     @SchedulerLock(name = "UpdateOldRecordsScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
-        fetchStock()
-            .map {
-                it.map { responseView ->
-                    responseView.toStock()
-                }
-            }
-            .map {
-                println("saved stock ${LocalDateTime.now()}, $pageNo")
-                stockService.saveAll(it).subscribe()
+        symbolService.getAllSymbols()
+            .map { it.name }
+            .collectList()
+            .flatMap { symbols ->
+                fetchStock()
+                    .map {
+                        filterNewStocks(it, symbols)
+                    }
+                    .map { stocks ->
+                        println("saved stock ${LocalDateTime.now()}, $pageNo")
+                        stockService.saveAll(stocks).subscribe()
+                    }
             }
             .subscribe()
+    }
+
+    private fun filterNewStocks(responses: List<ResponseView>, symbols: List<String>): List<Stock> {
+        return responses
+            .filter { responseView ->
+                symbols.contains(responseView.ScripName)
+            }
+            .map { responseView ->
+                responseView.toStock()
+            }
     }
 
     private fun fetchStock(): Mono<List<ResponseView>> {

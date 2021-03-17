@@ -20,9 +20,7 @@ class MessageScheduler(
     fun start() {
         tradeableStockService.getStocksUnsentAlert()
             .map {
-                if (!it.isSendAlert) {
-                    sendAlert(it)
-                }
+                sendAlert(it)
             }
             .subscribe()
     }
@@ -62,6 +60,11 @@ class MessageScheduler(
                             "text" to "*Average Price*\nRs. ${tradeableStock.averagePrice}"
                         ),
                         mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${tradeableStock.Price}"),
+                    )
+                ),
+                mapOf(
+                    "type" to "section",
+                    "fields" to listOf(
                         mapOf("type" to "mrkdwn", "text" to "*Trade Type*\nRs. ${tradeableStock.Type}")
                     )
                 )

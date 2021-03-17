@@ -9,12 +9,13 @@ import com.stocksAlert.stock.service.SymbolService
 import com.stocksAlert.stock.service.TradeableStockService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.util.regex.Pattern
 
 @Component
 class BestPriceScheduler(
@@ -23,13 +24,18 @@ class BestPriceScheduler(
     @Autowired private val tradeableStockService: TradeableStockService
 ) {
 
-    @Scheduled(cron = "0 0/15 3-10 * * 1-5")
+    @Scheduled(cron = "0 30 3-10 * * 1-5")
     @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
+        println("start")
         symbolService.getAllSymbols()
             .flatMap { symbol ->
                 fetchLastStocksBySymbol(symbol.name)
-            }.map {
+            }
+            .filter {
+                it.isNotEmpty()
+            }
+            .map {
                 calculateUpDownMarketAndUpdateDB(it)
             }.subscribe()
     }
@@ -52,17 +58,29 @@ class BestPriceScheduler(
     }
 
     private fun updateIfTradeable(first: StockEvaluation, stockEvaluation: StockEvaluation, stock: Stock) {
-        if (first.stockGrow != stockEvaluation.stockGrow) {
+        try {
             val tradeableStock = TradeableStock(
-                key = stock.key.split("T")[0],
+                key = stock.key.split(Pattern.compile("T[0-9]{2}:[0-9]{2}"))[0],
                 symbol = stock.symbol,
                 averagePrice = stock.averagePrice(),
-                calculatedOn = LocalDateTime.now().toEpochSecond(ZoneOffset.UTC),
                 LongName = stock.LongName,
                 Price = stock.Price,
-                Type = if (first.stockGrow == Grow.UP) "BUY" else "DOWN"
+                Type = calculateTradeType(first, stockEvaluation)
             )
             tradeableStockService.save(tradeableStock).subscribe()
+        } catch (e: DuplicateKeyException) {
+            println("Duplicate key error")
+        }
+    }
+
+    private fun calculateTradeType(
+        first: StockEvaluation,
+        stockEvaluation: StockEvaluation
+    ): String {
+        return when {
+            first.stockGrow == stockEvaluation.stockGrow -> "ALERT"
+            first.stockGrow != stockEvaluation.stockGrow && first.stockGrow == Grow.UP -> "BUY"
+            else -> "DOWN"
         }
     }
 
