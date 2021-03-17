@@ -16,9 +16,8 @@ class RemoveUnnecessaryStocksScheduler(
     @SchedulerLock(name = "RemoveUnnecessaryStocksScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         stockService.regexQueryInKey("^(?!.*(16:00:00|21:30:00)).*")
-            .collectList()
             .flatMap {
-                stockService.deleteAll(it)
+                stockService.delete(it)
             }
             .subscribe()
     }
