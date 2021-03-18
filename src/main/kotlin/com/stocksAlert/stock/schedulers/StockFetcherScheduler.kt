@@ -7,9 +7,7 @@ import com.stocksAlert.stock.service.StockService
 import com.stocksAlert.stock.service.SymbolService
 import com.stocksAlert.stock.utils.StringParser
 import com.stocksAlert.stock.utils.WebClientWrapper
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import reactor.core.publisher.Mono
@@ -17,20 +15,14 @@ import java.time.LocalDateTime
 
 @Component
 class StockFetcherScheduler(
-    @Autowired
-    private val webClientWrapper: WebClientWrapper,
-    @Autowired
-    private val envConfig: EnvConfig,
-    @Autowired
-    private val symbolService: SymbolService,
-    @Autowired
-    private val stockService: StockService,
-) {
+    @Autowired private val webClientWrapper: WebClientWrapper,
+    @Autowired private val envConfig: EnvConfig,
+    @Autowired private val symbolService: SymbolService,
+    @Autowired private val stockService: StockService,
+) : Scheduler {
     private var pageNo: Int = 1
 
-    @Scheduled(cron = "0 0 3-10 * * 1-5")
-    @SchedulerLock(name = "UpdateOldRecordsScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
-    fun start() {
+    override fun start() {
         symbolService.getAllSymbols()
             .map { it.name }
             .collectList()

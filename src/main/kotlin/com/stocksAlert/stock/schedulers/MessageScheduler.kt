@@ -4,9 +4,7 @@ import com.stocksAlert.stock.config.EnvConfig
 import com.stocksAlert.stock.domain.TradeableStock
 import com.stocksAlert.stock.service.TradeableStockService
 import com.stocksAlert.stock.utils.WebClientWrapper
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,14 +12,10 @@ class MessageScheduler(
     @Autowired private val tradeableStockService: TradeableStockService,
     @Autowired private val envConfig: EnvConfig,
     private val webClient: WebClientWrapper
-) {
-    @Scheduled(cron = "0 0/5 3-10 * * 1-5")
-    @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
-    fun start() {
+) : Scheduler {
+    override fun start() {
         tradeableStockService.getStocksUnsentAlert()
-            .map {
-                sendAlert(it)
-            }
+            .map { sendAlert(it) }
             .subscribe()
     }
 

@@ -19,7 +19,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @SpringBootTest
-class BestPriceSchedulerTest(
+class BestPriceMainSchedulerTest(
     @Autowired private val stockRepository: StockRepository,
     @Autowired private val symbolRepository: SymbolRepository,
     @Autowired private val bestPriceScheduler: BestPriceScheduler,

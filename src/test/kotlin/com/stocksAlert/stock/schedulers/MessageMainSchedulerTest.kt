@@ -23,7 +23,7 @@ import reactor.kotlin.core.publisher.toMono
 import java.math.BigDecimal
 
 @SpringBootTest
-class MessageSchedulerTest(
+class MessageMainSchedulerTest(
     @Autowired private val tradeableStockRepository: TradeableStockRepository
 ) {
     private val webClientWrapper = mockk<WebClientWrapper>()

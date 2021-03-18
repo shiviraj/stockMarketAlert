@@ -7,10 +7,8 @@ import com.stocksAlert.stock.schedulers.view.StockEvaluation
 import com.stocksAlert.stock.service.StockService
 import com.stocksAlert.stock.service.SymbolService
 import com.stocksAlert.stock.service.TradeableStockService
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DuplicateKeyException
-import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
@@ -22,12 +20,9 @@ class BestPriceScheduler(
     @Autowired private val stockService: StockService,
     @Autowired private val symbolService: SymbolService,
     @Autowired private val tradeableStockService: TradeableStockService
-) {
+) : Scheduler {
 
-    @Scheduled(cron = "0 30 3-10 * * 1-5")
-    @SchedulerLock(name = "BestPriceScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
-    fun start() {
-        println("start")
+    override fun start() {
         symbolService.getAllSymbols()
             .flatMap { symbol ->
                 fetchLastStocksBySymbol(symbol.name)
