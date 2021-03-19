@@ -22,7 +22,7 @@ import java.time.LocalDateTime
 class BestPriceMainSchedulerTest(
     @Autowired private val stockRepository: StockRepository,
     @Autowired private val symbolRepository: SymbolRepository,
-    @Autowired private val bestPriceScheduler: BestPriceScheduler,
+    @Autowired private val bestTradeableStockScheduler: BestTradeableStockScheduler,
     @Autowired private val tradeableStockRepository: TradeableStockRepository
 ) {
     @BeforeEach
@@ -77,7 +77,7 @@ class BestPriceMainSchedulerTest(
         symbolRepository.save(symbol).block()
         stockRepository.saveAll(listOf(stock, stock1, stock2)).toMono().block()
 
-        bestPriceScheduler.start()
+        bestTradeableStockScheduler.start()
 
         assertSoftly {
             val buyableStocks = tradeableStockRepository.findAll().toIterable().toList()

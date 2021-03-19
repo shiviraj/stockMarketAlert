@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 @Component
 class MainScheduler(
-    @Autowired private val bestPriceScheduler: BestPriceScheduler,
+    @Autowired private val bestTradeableStockScheduler: BestTradeableStockScheduler,
     @Autowired private val messageScheduler: MessageScheduler,
     @Autowired private val stockFetcherScheduler: StockFetcherScheduler
 ) {
@@ -20,9 +20,10 @@ class MainScheduler(
     }
 
     private fun getCurrentTask(): Scheduler {
-        return when (LocalDateTime.now().second) {
-            0 -> bestPriceScheduler
-            30 -> stockFetcherScheduler
+        val minute = LocalDateTime.now().minute
+        return when {
+            minute < 40 -> bestTradeableStockScheduler
+            minute == 40 -> stockFetcherScheduler
             else -> messageScheduler
         }
     }

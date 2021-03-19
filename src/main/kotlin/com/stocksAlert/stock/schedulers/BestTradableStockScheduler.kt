@@ -1,6 +1,7 @@
 package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.domain.Stock
+import com.stocksAlert.stock.domain.Symbol
 import com.stocksAlert.stock.domain.TradeableStock
 import com.stocksAlert.stock.schedulers.view.Grow
 import com.stocksAlert.stock.schedulers.view.StockEvaluation
@@ -16,23 +17,50 @@ import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 @Component
-class BestPriceScheduler(
+class BestTradeableStockScheduler(
     @Autowired private val stockService: StockService,
     @Autowired private val symbolService: SymbolService,
     @Autowired private val tradeableStockService: TradeableStockService
 ) : Scheduler {
 
+    private var start = 0
+    private val nextItems = 50
+
     override fun start() {
-        symbolService.getAllSymbols()
-            .flatMap { symbol ->
-                fetchLastStocksBySymbol(symbol.name)
+        getSymbolSublist()
+            .map { symbols ->
+                symbols.map { fetchAndCalculateBestStocks(it) }
             }
-            .filter {
-                it.isNotEmpty()
-            }
+            .subscribe()
+    }
+
+    private fun fetchAndCalculateBestStocks(symbol: Symbol) =
+        fetchLastStocksBySymbol(symbol.name)
+            .filter { it.isNotEmpty() }
             .map {
                 calculateUpDownMarketAndUpdateDB(it)
-            }.subscribe()
+            }
+            .subscribe()
+
+    private fun getSymbolSublist(): Mono<List<Symbol>> {
+        return symbolService.getAllSymbols()
+            .collectList()
+            .map {
+                val range = findRange(it.size)
+                println(range)
+                it.subList(range.first, range.second)
+            }
+    }
+
+    private fun findRange(size: Int): Pair<Int, Int> {
+        val end = if ((start + nextItems) > size) {
+            start = 0
+            size
+        } else {
+            start += nextItems
+            start
+        }
+        return Pair(end - nextItems, end)
     }
 
     private fun calculateUpDownMarketAndUpdateDB(stocks: List<Stock>) {
