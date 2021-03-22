@@ -1,6 +1,7 @@
 package com.stocksAlert.stock.schedulers
 
 import com.stocksAlert.stock.service.StockService
+import com.stocksAlert.stock.service.TradeableStockService
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class RemoveUnnecessaryStocksScheduler(
-    @Autowired private val stockService: StockService
+    @Autowired private val stockService: StockService,
+    @Autowired private val tradeableStockService: TradeableStockService
 ) {
 
     @Scheduled(cron = "0 0 3 * * *")
@@ -20,5 +22,7 @@ class RemoveUnnecessaryStocksScheduler(
                 stockService.delete(it)
             }
             .subscribe()
+
+        tradeableStockService.deleteAll().subscribe()
     }
 }

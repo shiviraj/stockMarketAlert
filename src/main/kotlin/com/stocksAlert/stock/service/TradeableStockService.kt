@@ -15,4 +15,9 @@ class TradeableStockService(private val tradeableStockRepository: TradeableStock
     fun getStocksUnsentAlert(): Flux<TradeableStock> {
         return tradeableStockRepository.findAllByIsSendAlert(false)
     }
+
+    fun deleteAll(): Mono<Void> {
+        return tradeableStockRepository.deleteAll()
+
+    }
 }
