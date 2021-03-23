@@ -2,7 +2,10 @@ package com.stocksAlert.stock.controller
 
 import com.stocksAlert.stock.controller.viewModel.MyStockRequest
 import com.stocksAlert.stock.domain.MyStock
+import com.stocksAlert.stock.schedulers.BestTradeableStockScheduler
+import com.stocksAlert.stock.schedulers.MessageScheduler
 import com.stocksAlert.stock.schedulers.RemoveUnnecessaryStocksScheduler
+import com.stocksAlert.stock.schedulers.StockFetcherScheduler
 import com.stocksAlert.stock.service.MyStockService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
@@ -16,7 +19,10 @@ import reactor.core.publisher.Mono
 @Component
 class Controller(
     @Autowired val myStockService: MyStockService,
-    @Autowired val removeUnnecessaryStocksScheduler: RemoveUnnecessaryStocksScheduler
+    @Autowired val removeUnnecessaryStocksScheduler: RemoveUnnecessaryStocksScheduler,
+    @Autowired val bestTradeableStockScheduler: BestTradeableStockScheduler,
+    @Autowired val messageScheduler: MessageScheduler,
+    @Autowired val stockFetcherScheduler: StockFetcherScheduler
 ) {
 
     @GetMapping("/")
@@ -33,5 +39,23 @@ class Controller(
     fun remove(): Mono<String> {
         removeUnnecessaryStocksScheduler.start()
         return Mono.just("removing")
+    }
+
+    @GetMapping("/tradeable-stocks")
+    fun findTradeableStocks(): Mono<String> {
+        bestTradeableStockScheduler.start()
+        return Mono.just("best tradeable stocks")
+    }
+
+    @GetMapping("/message-sender")
+    fun messageSender(): Mono<String> {
+        messageScheduler.start()
+        return Mono.just("message scheduler")
+    }
+
+    @GetMapping("/stock-fetcher")
+    fun stockFetcher(): Mono<String> {
+        stockFetcherScheduler.start()
+        return Mono.just("stock fetcher")
     }
 }
