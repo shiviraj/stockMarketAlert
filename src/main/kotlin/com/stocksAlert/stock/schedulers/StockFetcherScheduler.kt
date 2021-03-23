@@ -26,15 +26,23 @@ class StockFetcherScheduler(
         symbolService.getAllSymbols()
             .map { it.name }
             .collectList()
-            .flatMap { symbols ->
-                fetchStock()
-                    .map {
-                        filterNewStocks(it, symbols)
-                    }
-                    .map { stocks ->
-                        println("saved stock ${LocalDateTime.now()}, $pageNo")
-                        stockService.saveAll(stocks).subscribe()
-                    }
+            .map { symbols ->
+                repeat(180) {
+                    fetchStocks(symbols)
+                    Thread.sleep(500)
+                }
+            }
+            .subscribe()
+    }
+
+    private fun fetchStocks(symbols: MutableList<String>) {
+        fetchStock()
+            .map {
+                filterNewStocks(it, symbols)
+            }
+            .map { stocks ->
+                println("saved stock ${LocalDateTime.now()}, $pageNo")
+                stockService.saveAll(stocks).subscribe()
             }
             .subscribe()
     }
