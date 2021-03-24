@@ -6,6 +6,7 @@ import com.stocksAlert.stock.service.TradeableStockService
 import com.stocksAlert.stock.utils.WebClientWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 
 @Component
 class MessageScheduler(
@@ -15,15 +16,15 @@ class MessageScheduler(
 ) : Scheduler {
     override fun start() {
         tradeableStockService.getStocksUnsentAlert()
-            .map { sendAlert(it) }
+            .flatMap { sendAlert(it) }
             .subscribe()
     }
 
-    private fun sendAlert(tradeableStock: TradeableStock) {
+    private fun sendAlert(tradeableStock: TradeableStock): Mono<String> {
         val body = createMessageBody(tradeableStock)
         tradeableStock.isSendAlert = true
 
-        webClient.post(
+        return webClient.post(
             baseUrl = envConfig.webhookUri,
             path = "",
             body = body,
@@ -32,7 +33,6 @@ class MessageScheduler(
             .doOnSuccess {
                 tradeableStockService.save(tradeableStock).block()
             }
-            .subscribe()
     }
 
     private fun createMessageBody(tradeableStock: TradeableStock): Map<String, Any> {

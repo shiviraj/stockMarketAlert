@@ -13,8 +13,8 @@ class MainScheduler(
     @Autowired private val stockFetcherScheduler: StockFetcherScheduler
 ) {
 
-    @Scheduled(cron = "0 0/10 10-11 * * 1-5")
-    @SchedulerLock(name = "Scheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
+    @Scheduled(cron = "0 0/5 10-11 * * 1-5")
+    @SchedulerLock(name = "MainScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         getCurrentTask().start()
     }
@@ -22,8 +22,8 @@ class MainScheduler(
     private fun getCurrentTask(): Scheduler {
         val minute = LocalDateTime.now().minute
         return when {
+            minute == 0 -> stockFetcherScheduler
             minute < 50 -> bestTradeableStockScheduler
-            minute == 50 -> stockFetcherScheduler
             else -> messageScheduler
         }
     }

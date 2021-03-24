@@ -27,7 +27,7 @@ class StockService(private val stockRepository: StockRepository) {
         return stockRepository.findByRegexKey(query)
     }
 
-    fun delete(stock: Stock): Mono<Void> {
-        return stockRepository.delete(stock)
+    fun deleteAll(stocks: List<Stock>): Mono<Void> {
+        return stockRepository.deleteAll(stocks)
     }
 }

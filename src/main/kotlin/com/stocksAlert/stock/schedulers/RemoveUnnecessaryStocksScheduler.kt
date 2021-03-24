@@ -14,12 +14,13 @@ class RemoveUnnecessaryStocksScheduler(
     @Autowired private val tradeableStockService: TradeableStockService
 ) {
 
-    @Scheduled(cron = "0 0 3 * * *")
+    @Scheduled(cron = "0 0 3 * * 1-5")
     @SchedulerLock(name = "RemoveUnnecessaryStocksScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
     fun start() {
         stockService.regexQueryInKey("^(?!.*(16:00:00|21:30:00)).*")
+            .collectList()
             .flatMap {
-                stockService.delete(it)
+                stockService.deleteAll(it)
             }
             .subscribe()
 
