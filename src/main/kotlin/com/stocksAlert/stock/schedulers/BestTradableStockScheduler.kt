@@ -34,17 +34,15 @@ class BestTradeableStockScheduler(
 
 
     private fun calculateUpDownMarketAndUpdateDB(stocks: List<Stock>): Mono<TradeableStock> {
-        lateinit var stocksEvaluations: List<StockEvaluation>
         try {
-            stocksEvaluations = evaluateGraph(stocks).subList(0, 20)
+            val stocksEvaluations = evaluateGraph(stocks).subList(0, 20)
+            val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
+            val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
+            if (isContainSameGrow(last2to12StocksEvaluation)) {
+                return updateIfTradeable(firstTwoStockEvaluation, stocks.first())
+            }
         } catch (e: IndexOutOfBoundsException) {
             println("Insufficient stocks")
-        }
-
-        val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
-        val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
-        if (isContainSameGrow(last2to12StocksEvaluation)) {
-            return updateIfTradeable(firstTwoStockEvaluation, stocks.first())
         }
         return Mono.empty()
     }
