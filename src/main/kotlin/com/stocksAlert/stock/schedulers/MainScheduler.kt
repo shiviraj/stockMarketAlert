@@ -14,7 +14,7 @@ class MainScheduler(
 ) {
 
     @Scheduled(cron = "0 0/5 10-11 * * 1-5")
-    @SchedulerLock(name = "MainScheduler_start", lockAtMostFor = "1m", lockAtLeastFor = "1m")
+    @SchedulerLock(name = "MainScheduler_start", lockAtMostFor = "4m", lockAtLeastFor = "4m")
     fun start() {
         getCurrentTask().start()
     }

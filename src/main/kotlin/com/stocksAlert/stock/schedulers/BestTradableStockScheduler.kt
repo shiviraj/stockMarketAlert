@@ -82,9 +82,9 @@ class BestTradeableStockScheduler(
         stockEvaluation: StockEvaluation
     ): String {
         return when {
-            first.stockGrow == stockEvaluation.stockGrow -> "ALERT"
             first.stockGrow != stockEvaluation.stockGrow && first.stockGrow == Grow.UP -> "BUY"
-            else -> "SELL"
+            first.stockGrow != stockEvaluation.stockGrow && first.stockGrow == Grow.DOWN -> "SELL"
+            else -> "ALERT"
         }
     }
 

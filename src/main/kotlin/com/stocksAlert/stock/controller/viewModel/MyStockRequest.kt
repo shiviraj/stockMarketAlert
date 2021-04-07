@@ -2,7 +2,7 @@ package com.stocksAlert.stock.controller.viewModel
 
 import java.math.BigDecimal
 
-data class  MyStockRequest(
+data class MyStockRequest(
     val symbol: String,
     val purchasedOn: String,
     val LongName: String,
