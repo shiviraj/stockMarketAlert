@@ -12,7 +12,6 @@ import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import java.math.BigDecimal
-import java.time.LocalDateTime
 import java.util.regex.Pattern
 
 @Component
@@ -35,30 +34,23 @@ class BestTradeableStockScheduler(
 
 
     private fun calculateUpDownMarketAndUpdateDB(stocks: List<Stock>): Mono<TradeableStock> {
-        val now = LocalDateTime.now().toString().split("T")[0]
-        val allStocks = stocks.filter {
-            !it.key.contains(Regex(".*${now}T.*"))
-        }
-        val stocksEvaluations = evaluateGraph(allStocks)
+        lateinit var stocksEvaluations: List<StockEvaluation>
         try {
-            val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
-            val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
-            if (isContainSameGrow(last2to12StocksEvaluation)) {
-                return updateIfTradeable(
-                    firstTwoStockEvaluation.first(),
-                    last2to12StocksEvaluation.first(),
-                    stocks.first()
-                )
-            }
+            stocksEvaluations = evaluateGraph(stocks).subList(0, 20)
         } catch (e: IndexOutOfBoundsException) {
             println("Insufficient stocks")
+        }
+
+        val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
+        val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
+        if (isContainSameGrow(last2to12StocksEvaluation)) {
+            return updateIfTradeable(firstTwoStockEvaluation, stocks.first())
         }
         return Mono.empty()
     }
 
     private fun updateIfTradeable(
-        first: StockEvaluation,
-        stockEvaluation: StockEvaluation,
+        firstTwoStocks: List<StockEvaluation>,
         stock: Stock
     ): Mono<TradeableStock> {
         try {
@@ -68,7 +60,7 @@ class BestTradeableStockScheduler(
                 averagePrice = stock.averagePrice(),
                 LongName = stock.LongName,
                 Price = stock.Price,
-                Type = calculateTradeType(first, stockEvaluation)
+                Type = calculateTradeType(firstTwoStocks)
             )
             return tradeableStockService.save(tradeableStock)
         } catch (e: DuplicateKeyException) {
@@ -77,13 +69,10 @@ class BestTradeableStockScheduler(
         return Mono.empty()
     }
 
-    private fun calculateTradeType(
-        first: StockEvaluation,
-        stockEvaluation: StockEvaluation
-    ): String {
+    private fun calculateTradeType(stocks: List<StockEvaluation>): String {
         return when {
-            first.stockGrow != stockEvaluation.stockGrow && first.stockGrow == Grow.UP -> "BUY"
-            first.stockGrow != stockEvaluation.stockGrow && first.stockGrow == Grow.DOWN -> "SELL"
+            stocks.first().stockGrow == stocks[1].stockGrow && stocks.first().stockGrow == Grow.UP -> "BUY"
+            stocks.first().stockGrow == stocks[1].stockGrow && stocks.first().stockGrow == Grow.DOWN -> "SELL"
             else -> "ALERT"
         }
     }
@@ -95,15 +84,16 @@ class BestTradeableStockScheduler(
         return noOfUpGoing.isNotInBetween(2, 8)
     }
 
-    private fun evaluateGraph(allStocks: List<Stock>): List<StockEvaluation> {
+    private fun evaluateGraph(stocks: List<Stock>): List<StockEvaluation> {
+        val allStocks = stocks.reversed()
         var previousStockPrice = allStocks.first().averagePrice()
         return allStocks.map {
             val averagePrice = it.averagePrice()
             val difference = averagePrice - previousStockPrice
-            val stockGrowResult = if (difference < BigDecimal(0)) Grow.UP else Grow.DOWN
+            val stockGrowResult = if (difference < BigDecimal(0)) Grow.DOWN else Grow.UP
             previousStockPrice = averagePrice
             StockEvaluation(stockGrowResult, difference.abs(), averagePrice)
-        }
+        }.reversed()
     }
 
     private fun fetchLastStocksBySymbol(symbol: String): Mono<List<Stock>> {
@@ -118,5 +108,5 @@ class BestTradeableStockScheduler(
 }
 
 private fun Int.isNotInBetween(start: Int, end: Int): Boolean {
-    return this < start || this > end
+    return this <= start || this >= end
 }
