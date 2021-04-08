@@ -2,7 +2,7 @@ package com.stocksAlert.stock.repository
 
 import com.stocksAlert.stock.domain.MyStock
 import org.springframework.data.repository.reactive.ReactiveCrudRepository
-import org.springframework.stereotype.Service
+import org.springframework.stereotype.Repository
 
-@Service
+@Repository
 interface MyStockRepository : ReactiveCrudRepository<MyStock, String>

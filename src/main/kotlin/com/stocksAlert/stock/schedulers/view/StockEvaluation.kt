@@ -1,8 +1,6 @@
 package com.stocksAlert.stock.schedulers.view
 
-import java.math.BigDecimal
-
-class StockEvaluation(val stockGrow: Grow, private val priceChange: BigDecimal, val price: BigDecimal) {
+class StockEvaluation(val stockGrow: Grow, private val priceChange: Double, val price: Double) {
     override fun toString(): String {
         return "StockEvaluation(stockGrowResult=$stockGrow, abs=$priceChange, averagePrice=$price)"
     }

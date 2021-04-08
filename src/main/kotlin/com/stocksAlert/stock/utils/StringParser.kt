@@ -10,8 +10,9 @@ class StringParser {
 
     companion object {
         fun parse(string: String): ResponseView {
+            val stringWithoutHyphen = string.replace("--", "0", true)
             val map = linkedMapOf<String, String>()
-            string.removeSurrounding("{", "}")
+            stringWithoutHyphen.removeSurrounding("{", "}")
                 .split(",")
                 .map {
                     it.split("=").apply {
@@ -23,27 +24,27 @@ class StringParser {
 
             return ResponseView(
                 LongName = map["LongName"]!!,
-                UlaValue = map["UlaValue"]!!.toBigDecimal(),
+                UlaValue = map["UlaValue"]!!.toDouble(),
                 LastTrdTime = format.parse(map["LastTrdTime"]).time,
-                ATP = map["ATP"]!!.toBigDecimal(),
+                ATP = map["ATP"]!!.toDouble(),
                 PercentChange = map["PercentChange"]!!.toDouble(),
                 ScripName = map["ScripName"]!!,
-                Price = map["Price"]!!.toBigDecimal(),
-                Change = map["Change"]!!.toBigDecimal(),
+                Price = map["Price"]!!.toDouble(),
+                Change = map["Change"]!!.toDouble(),
                 Volume = map["Volume"]!!.toDouble(),
                 TurnOver = map["TurnOver"]!!.toDouble(),
-                Open = map["Open"]!!.toBigDecimal(),
-                High = map["High"]!!.toBigDecimal(),
-                Low = map["Low"]!!.toBigDecimal(),
-                PreCloseRate = map["PreCloseRate"]!!.toBigDecimal(),
-                OI = map["OI"]!!.toBigDecimal(),
+                Open = map["Open"]!!.toDouble(),
+                High = map["High"]!!.toDouble(),
+                Low = map["Low"]!!.toDouble(),
+                PreCloseRate = map["PreCloseRate"]!!.toDouble(),
+                OI = map["OI"]!!.toDouble(),
                 upperCircuit = map["upperCircuit"]!!.toDouble(),
                 lowerCircuit = map["lowerCircuit"]!!.toDouble(),
-                Wk52High = map["Wk52High"]!!.toBigDecimal(),
-                W2AvgQ = map["W2AvgQ"]!!.toBigDecimal(),
-                Wk52low = map["Wk52low"]!!.toBigDecimal(),
-                MCapFF = map["MCapFF"]!!.toBigDecimal(),
-                MCapFull = map["MCapFull"]!!.toBigDecimal(),
+                Wk52High = map["Wk52High"]!!.toDouble(),
+                W2AvgQ = map["W2AvgQ"]!!.toDouble(),
+                Wk52low = map["Wk52low"]!!.toDouble(),
+                MCapFF = map["MCapFF"]!!.toDouble(),
+                MCapFull = map["MCapFull"]!!.toDouble(),
             )
         }
     }

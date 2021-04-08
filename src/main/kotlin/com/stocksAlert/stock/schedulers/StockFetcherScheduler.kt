@@ -8,6 +8,7 @@ import com.stocksAlert.stock.service.SymbolService
 import com.stocksAlert.stock.utils.StringParser
 import com.stocksAlert.stock.utils.WebClientWrapper
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import org.springframework.util.LinkedMultiValueMap
 import reactor.core.publisher.Mono
@@ -20,29 +21,31 @@ class StockFetcherScheduler(
     @Autowired private val symbolService: SymbolService,
     @Autowired private val stockService: StockService,
 ) : Scheduler {
-    private var pageNo: Int = 1
-
     override fun start() {
         symbolService.getAllSymbols()
             .map { it.name }
             .collectList()
             .map { symbols ->
-                repeat(180) {
-                    fetchStocks(symbols)
-                    Thread.sleep(500)
+                repeat(200) {
+                    fetchStocks(symbols, it)
                 }
             }
             .subscribe()
     }
 
-    private fun fetchStocks(symbols: MutableList<String>) {
-        fetchStock()
+    private fun fetchStocks(symbols: MutableList<String>, pageNo: Int) {
+        fetchStock(pageNo)
             .map {
                 filterNewStocks(it, symbols)
             }
-            .map { stocks ->
+            .flatMapMany { stocks ->
                 println("saved stock ${LocalDateTime.now()}, $pageNo")
-                stockService.saveAll(stocks).subscribe()
+                stockService.saveAll(stocks)
+            }
+            .onErrorResume {
+                if (it is DuplicateKeyException) {
+                    Mono.empty()
+                } else throw it
             }
             .subscribe()
     }
@@ -57,13 +60,13 @@ class StockFetcherScheduler(
             }
     }
 
-    private fun fetchStock(): Mono<List<ResponseView>> {
+    private fun fetchStock(pageNo: Int): Mono<List<ResponseView>> {
         val linkedMultiValueMap = LinkedMultiValueMap<String, String>()
         linkedMultiValueMap.add("flag", "Equity")
         linkedMultiValueMap.add("ddlVal1", "All");
         linkedMultiValueMap.add("ddlVal2", "All")
         linkedMultiValueMap.add("m", "0")
-        linkedMultiValueMap.add("pgN", "${pageNo++}")
+        linkedMultiValueMap.add("pgN", "$pageNo")
 
         return webClientWrapper.get(
             baseUrl = envConfig.bseUri,
@@ -74,9 +77,6 @@ class StockFetcherScheduler(
                 "User-Agent" to "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:85.0) Gecko/20100101 Firefox/85.0",
             ),
         ).map {
-            if (it.isEmpty())
-                pageNo = 1
-
             it.map { str ->
                 StringParser.parse(str.toString())
             }

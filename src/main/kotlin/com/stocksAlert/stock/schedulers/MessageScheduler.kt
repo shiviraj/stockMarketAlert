@@ -16,13 +16,18 @@ class MessageScheduler(
 ) : Scheduler {
     override fun start() {
         tradeableStockService.getStocksUnsentAlert()
-            .flatMap { sendAlert(it) }
+            .flatMap {
+                sendAlert(it)
+            }
+            .collectList()
+            .flatMapMany {
+                tradeableStockService.saveAll(it)
+            }
             .subscribe()
     }
 
-    private fun sendAlert(tradeableStock: TradeableStock): Mono<String> {
+    private fun sendAlert(tradeableStock: TradeableStock): Mono<TradeableStock> {
         val body = createMessageBody(tradeableStock)
-        tradeableStock.isSendAlert = true
 
         return webClient.post(
             baseUrl = getUri(tradeableStock.Type),
@@ -30,8 +35,9 @@ class MessageScheduler(
             body = body,
             returnType = String::class.java
         )
-            .doOnSuccess {
-                tradeableStockService.save(tradeableStock).block()
+            .map {
+                tradeableStock.isSendAlert = true
+                tradeableStock
             }
     }
 

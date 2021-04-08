@@ -11,8 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
-import java.math.BigDecimal
 import java.util.regex.Pattern
+import kotlin.math.absoluteValue
 
 @Component
 class BestTradeableStockScheduler(
@@ -35,7 +35,7 @@ class BestTradeableStockScheduler(
 
     private fun calculateUpDownMarketAndUpdateDB(stocks: List<Stock>): Mono<TradeableStock> {
         try {
-            val stocksEvaluations = evaluateGraph(stocks).subList(0, 20)
+            val stocksEvaluations = evaluateGraph(stocks.subList(0, 20))
             val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
             val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
             val containSameGrow = containSameGrow(last2to12StocksEvaluation)
@@ -92,9 +92,9 @@ class BestTradeableStockScheduler(
         return allStocks.map {
             val averagePrice = it.averagePrice()
             val difference = averagePrice - previousStockPrice
-            val stockGrowResult = if (difference < BigDecimal(0)) Grow.DOWN else Grow.UP
+            val stockGrowResult = if (difference < 0) Grow.DOWN else Grow.UP
             previousStockPrice = averagePrice
-            StockEvaluation(stockGrowResult, difference.abs(), averagePrice)
+            StockEvaluation(stockGrowResult, difference.absoluteValue, averagePrice)
         }.reversed()
     }
 

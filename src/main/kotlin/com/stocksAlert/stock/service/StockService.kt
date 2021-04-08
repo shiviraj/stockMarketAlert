@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Service
 class StockService(private val stockRepository: StockRepository) {
@@ -29,5 +30,15 @@ class StockService(private val stockRepository: StockRepository) {
 
     fun deleteAll(stocks: List<Stock>): Mono<Void> {
         return stockRepository.deleteAll(stocks)
+    }
+
+    fun getOlderRecords(days: Long): Flux<Stock> {
+        val toEpochSecond = LocalDateTime.now().minusDays(days).toEpochSecond(ZoneOffset.UTC)
+        return stockRepository.getOlder(toEpochSecond)
+
+    }
+
+    fun save(stock: Stock): Mono<Stock> {
+        return stockRepository.save(stock)
     }
 }

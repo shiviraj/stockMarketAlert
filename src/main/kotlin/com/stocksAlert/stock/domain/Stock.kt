@@ -5,7 +5,6 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.index.Indexed
 import org.springframework.data.mongodb.core.mapping.Document
 import org.springframework.data.mongodb.core.mapping.Field
-import java.math.BigDecimal
 
 const val STOCK_COLLECTION = "stocks"
 
@@ -14,32 +13,32 @@ data class Stock(
     @Id
     var id: ObjectId? = null,
     @Indexed(unique = true)
-    val key: String,
+    var key: String,
     @Field("Symbol")
     val symbol: String,
-    val LastTrdTime: Long,
+    var LastTrdTime: Long,
     val LongName: String,
-    val UlaValue: BigDecimal,
-    val ATP: BigDecimal,
+    val UlaValue: Double,
+    val ATP: Double,
     val PercentChange: Double,
-    val Price: BigDecimal,
-    val Change: BigDecimal,
+    val Price: Double,
+    val Change: Double,
     val Volume: Double,
     val TurnOver: Double,
-    val Open: BigDecimal,
-    val High: BigDecimal,
-    val Low: BigDecimal,
-    val PreCloseRate: BigDecimal,
-    val OI: BigDecimal,
+    val Open: Double,
+    val High: Double,
+    val Low: Double,
+    val PreCloseRate: Double,
+    val OI: Double,
     val upperCircuit: Double,
     val lowerCircuit: Double,
-    val Wk52High: BigDecimal,
-    val W2AvgQ: BigDecimal,
-    val Wk52low: BigDecimal,
-    val MCapFF: BigDecimal,
-    val MCapFull: BigDecimal
+    val Wk52High: Double,
+    val W2AvgQ: Double,
+    val Wk52low: Double,
+    val MCapFF: Double,
+    val MCapFull: Double
 ) {
-    fun averagePrice(): BigDecimal {
-        return (High + Low) / BigDecimal(2)
+    fun averagePrice(): Double {
+        return (High + Low) / 2
     }
 }
