@@ -1,5 +1,6 @@
 stock:
   env:
-    discount-percent: ${DISCOUNT_PERCENT:0}
-    webhook-uri: ${WEBHOOK_URI:"uri"}
+    webhook-uri-buy: ${WEBHOOK_URI_BUY:"uri"}
+    webhook-uri-sell: ${WEBHOOK_URI_SELL:"uri"}
+    webhook-uri-alert: ${WEBHOOK_URI_ALERT:"uri"}
     bse-uri: ${BSE_URI:"bse-uri"}

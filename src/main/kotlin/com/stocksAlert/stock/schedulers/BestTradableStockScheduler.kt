@@ -38,8 +38,9 @@ class BestTradeableStockScheduler(
             val stocksEvaluations = evaluateGraph(stocks).subList(0, 20)
             val last2to12StocksEvaluation = stocksEvaluations.subList(2, 12)
             val firstTwoStockEvaluation = stocksEvaluations.subList(0, 2)
-            if (isContainSameGrow(last2to12StocksEvaluation)) {
-                return updateIfTradeable(firstTwoStockEvaluation, stocks.first())
+            val containSameGrow = containSameGrow(last2to12StocksEvaluation)
+            if (containSameGrow["isContainSame"] as Boolean) {
+                return updateIfTradeable(firstTwoStockEvaluation, stocks.first(), containSameGrow["grow"] as Grow)
             }
         } catch (e: IndexOutOfBoundsException) {
             println("Insufficient stocks")
@@ -49,7 +50,8 @@ class BestTradeableStockScheduler(
 
     private fun updateIfTradeable(
         firstTwoStocks: List<StockEvaluation>,
-        stock: Stock
+        stock: Stock,
+        grow: Grow
     ): Mono<TradeableStock> {
         try {
             val tradeableStock = TradeableStock(
@@ -58,7 +60,7 @@ class BestTradeableStockScheduler(
                 averagePrice = stock.averagePrice(),
                 LongName = stock.LongName,
                 Price = stock.Price,
-                Type = calculateTradeType(firstTwoStocks)
+                Type = calculateTradeType(firstTwoStocks, grow)
             )
             return tradeableStockService.save(tradeableStock)
         } catch (e: DuplicateKeyException) {
@@ -67,19 +69,21 @@ class BestTradeableStockScheduler(
         return Mono.empty()
     }
 
-    private fun calculateTradeType(stocks: List<StockEvaluation>): String {
-        return when {
-            stocks.first().stockGrow == stocks[1].stockGrow && stocks.first().stockGrow == Grow.UP -> "BUY"
-            stocks.first().stockGrow == stocks[1].stockGrow && stocks.first().stockGrow == Grow.DOWN -> "SELL"
-            else -> "ALERT"
-        }
+    private fun calculateTradeType(stocks: List<StockEvaluation>, grow: Grow): String {
+        val firstStockGrow = stocks.first().stockGrow
+        return if (firstStockGrow == stocks[1].stockGrow && firstStockGrow != grow) {
+            if (firstStockGrow == Grow.DOWN) "SELL" else "BUY"
+        } else "ALERT"
     }
 
-    private fun isContainSameGrow(stocksEvaluations: List<StockEvaluation>): Boolean {
+    private fun containSameGrow(stocksEvaluations: List<StockEvaluation>): Map<String, Any> {
         val noOfUpGoing = stocksEvaluations.count {
             it.stockGrow == Grow.UP
         }
-        return noOfUpGoing.isNotInBetween(2, 8)
+        val result = mutableMapOf<String, Any>()
+        result["isContainSame"] = noOfUpGoing.isNotInBetween(2, 8)
+        result["grow"] = if (noOfUpGoing <= 3) Grow.UP else Grow.DOWN
+        return result
     }
 
     private fun evaluateGraph(stocks: List<Stock>): List<StockEvaluation> {

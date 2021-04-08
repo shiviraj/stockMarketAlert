@@ -25,7 +25,7 @@ class MessageScheduler(
         tradeableStock.isSendAlert = true
 
         return webClient.post(
-            baseUrl = envConfig.webhookUri,
+            baseUrl = getUri(tradeableStock.Type),
             path = "",
             body = body,
             returnType = String::class.java
@@ -33,6 +33,15 @@ class MessageScheduler(
             .doOnSuccess {
                 tradeableStockService.save(tradeableStock).block()
             }
+    }
+
+    private fun getUri(type: String): String {
+        return when (type) {
+            "BUY" -> envConfig.webhookUriBuy
+            "SELL" -> envConfig.webhookUriSell
+            else -> envConfig.webhookUriAlert
+        }
+
     }
 
     private fun createMessageBody(tradeableStock: TradeableStock): Map<String, Any> {
@@ -54,12 +63,6 @@ class MessageScheduler(
                             "text" to "*Average Price*\nRs. ${tradeableStock.averagePrice}"
                         ),
                         mapOf("type" to "mrkdwn", "text" to "*Current Price*\nRs. ${tradeableStock.Price}"),
-                    )
-                ),
-                mapOf(
-                    "type" to "section",
-                    "fields" to listOf(
-                        mapOf("type" to "mrkdwn", "text" to "*Trade Type*\nRs. ${tradeableStock.Type}")
                     )
                 )
             )

@@ -29,7 +29,7 @@ class MessageMainSchedulerTest(
     private val webClientWrapper = mockk<WebClientWrapper>()
     private val messageScheduler = MessageScheduler(
         tradeableStockService = TradeableStockService(tradeableStockRepository),
-        envConfig = EnvConfig(0, "uri", "uri"),
+        envConfig = EnvConfig("uri", "uri", "", ""),
         webClient = webClientWrapper
     )
 
