@@ -7,12 +7,10 @@ import com.stocksAlert.stock.schedulers.MessageScheduler
 import com.stocksAlert.stock.schedulers.RemoveUnnecessaryStocksScheduler
 import com.stocksAlert.stock.schedulers.StockFetcherScheduler
 import com.stocksAlert.stock.service.MyStockService
+import com.stocksAlert.stock.service.TradeableStockService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import reactor.core.publisher.Mono
 
 @RestController
@@ -22,7 +20,8 @@ class Controller(
     @Autowired val removeUnnecessaryStocksScheduler: RemoveUnnecessaryStocksScheduler,
     @Autowired val bestTradeableStockScheduler: BestTradeableStockScheduler,
     @Autowired val messageScheduler: MessageScheduler,
-    @Autowired val stockFetcherScheduler: StockFetcherScheduler
+    @Autowired val stockFetcherScheduler: StockFetcherScheduler,
+    @Autowired val tradeableStockService: TradeableStockService
 ) {
 
     @GetMapping("/")
@@ -57,5 +56,10 @@ class Controller(
     fun stockFetcher(): Mono<String> {
         stockFetcherScheduler.start()
         return Mono.just("stock fetcher")
+    }
+
+    @GetMapping("/tradeable-stocks/{date}")
+    fun tradeableStocks(@PathVariable date: String): Mono<Map<String, List<String>>> {
+        return tradeableStockService.getAllStocks(date)
     }
 }

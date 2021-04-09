@@ -19,4 +19,24 @@ class TradeableStockService(private val tradeableStockRepository: TradeableStock
     fun saveAll(tradeableStocks: List<TradeableStock>): Flux<TradeableStock> {
         return tradeableStockRepository.saveAll(tradeableStocks)
     }
+
+    fun getAllStocks(date: String): Mono<Map<String, List<String>>> {
+        return tradeableStockRepository.getStocks(".*$date")
+            .collectList()
+            .map {
+                it
+                    .groupBy { tradeableStock ->
+                        tradeableStock.Type
+                    }
+            }
+            .map { entry ->
+                val mutableMapOf = mutableMapOf<String, List<String>>()
+                entry.keys.forEach {
+                    mutableMapOf[it] = entry[it]?.map { tradeableStock ->
+                        tradeableStock.key
+                    }!!
+                }
+                mutableMapOf
+            }
+    }
 }
