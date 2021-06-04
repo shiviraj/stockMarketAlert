@@ -16,6 +16,9 @@ class MessageScheduler(
 ) : Scheduler {
     override fun start() {
         tradeableStockService.getStocksUnsentAlert()
+            .filter {
+                it.Price > 100 && it.Price < 1000
+            }
             .flatMap {
                 sendAlert(it)
             }

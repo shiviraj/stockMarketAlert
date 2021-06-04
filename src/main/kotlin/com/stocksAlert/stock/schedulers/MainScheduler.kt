@@ -1,6 +1,5 @@
 package com.stocksAlert.stock.schedulers
 
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
@@ -14,7 +13,6 @@ class MainScheduler(
 ) {
 
     @Scheduled(cron = "0 0/5 10-11 * * 1-5")
-    @SchedulerLock(name = "MainScheduler_start", lockAtMostFor = "4m", lockAtLeastFor = "4m")
     fun start() {
         getCurrentTask().start()
     }
